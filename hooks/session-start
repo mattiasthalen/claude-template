@@ -165,59 +165,70 @@ mkdir -p "${PROJECT_ROOT}/.claude"
 printf '%s' "$PLUGIN_VERSION" > "$VERSION_FILE"
 
 # --- Phase 5b: Output summary ---
-summary=""
+summary="primer v${PLUGIN_VERSION}"
 
+has_details=false
+
+detail=""
 if [ ${#scaffolded_files[@]} -gt 0 ]; then
-    summary+=$'Scaffolded files:\n'
+    has_details=true
+    detail+=$'Scaffolded files:\n'
     for f in "${scaffolded_files[@]}"; do
-        summary+=$'  + '"${f}"$'\n'
+        detail+=$'  + '"${f}"$'\n'
     done
 fi
 
 if [ ${#appended_entries[@]} -gt 0 ]; then
-    summary+=$'Appended to .gitignore:\n'
+    has_details=true
+    detail+=$'Appended to .gitignore:\n'
     for e in "${appended_entries[@]}"; do
-        summary+=$'  + '"${e}"$'\n'
+        detail+=$'  + '"${e}"$'\n'
     done
 fi
 
 if [ ${#stale_files[@]} -gt 0 ]; then
-    summary+=$'Stale files (template differs from project):\n'
+    has_details=true
+    detail+=$'Stale files (template differs from project):\n'
     for f in "${stale_files[@]}"; do
-        summary+=$'  ~ '"${f}"$'\n'
+        detail+=$'  ~ '"${f}"$'\n'
     done
-    summary+=$'Run with PRIMER_UPDATE=1 to overwrite, then review with git diff.\n'
+    detail+=$'Run with PRIMER_UPDATE=1 to overwrite, then review with git diff.\n'
 fi
 
 if [ ${#missing_plugins[@]} -gt 0 ]; then
-    summary+=$'\nRequired plugins are not installed for this project:\n'
-    for plugin in "${missing_plugins[@]}"; do
-        summary+=$'  - '"${plugin}"$'\n'
+    has_details=true
+    detail+=$'Missing plugins (not installed for this project):\n'
+    for p in "${missing_plugins[@]}"; do
+        detail+=$'  - '"${p}"$'\n'
+        detail+=$'    Install: claude plugins install '"${p}"$' --scope project\n'
     done
-    summary+=$'Run: claude plugins install <plugin-name> --scope project\nThen restart your session.\n'
+fi
+
+if [ "$has_details" = true ]; then
+    summary+=$'\n\n'"${detail}"
+else
+    summary+=" — up to date"
 fi
 
 # Output as JSON for Claude Code hook system
-if [ -n "$summary" ]; then
-    escape_for_json() {
-        local s="$1"
-        s="${s//\\/\\\\}"
-        s="${s//\"/\\\"}"
-        s="${s//$'\n'/\\n}"
-        s="${s//$'\r'/\\r}"
-        s="${s//$'\t'/\\t}"
-        printf '%s' "$s"
-    }
+escape_for_json() {
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    s="${s//$'\n'/\\n}"
+    s="${s//$'\r'/\\r}"
+    s="${s//$'\t'/\\t}"
+    printf '%s' "$s"
+}
 
-    escaped=$(escape_for_json "$summary")
+escaped=$(escape_for_json "$summary")
 
-    if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
-        printf '{\n  "additional_context": "%s"\n}\n' "$escaped"
-    elif [ -n "${COPILOT_CLI:-}" ]; then
-        printf '{\n  "additionalContext": "%s"\n}\n' "$escaped"
-    else
-        printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped"
-    fi
+if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+    printf '{\n  "additional_context": "%s"\n}\n' "$escaped"
+elif [ -n "${COPILOT_CLI:-}" ]; then
+    printf '{\n  "additionalContext": "%s"\n}\n' "$escaped"
+else
+    printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped"
 fi
 
 exit 0
