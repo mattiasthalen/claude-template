@@ -228,7 +228,7 @@ if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
 elif [ -n "${COPILOT_CLI:-}" ]; then
     printf '{\n  "additionalContext": "%s"\n}\n' "$escaped"
 else
-    printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped"
+    printf '{\n  "systemMessage": "%s",\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped" "$escaped"
 fi
 
 exit 0
