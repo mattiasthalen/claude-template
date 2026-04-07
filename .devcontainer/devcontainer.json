@@ -1,0 +1,31 @@
+{
+  "name": "${localWorkspaceFolderBasename}",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {},
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:1": {},
+    "ghcr.io/jsburckhardt/devcontainer-features/just:1": {}
+
+    // Uncomment as needed per project:
+
+    // --- Languages ---
+    // "ghcr.io/devcontainers/features/python:1": { "version": "3.12" },
+    // "ghcr.io/devcontainers/features/go:1": {},
+    // "ghcr.io/devcontainers/features/rust:1": {},
+    // "ghcr.io/devcontainers/features/java:1": { "version": "21" }
+
+    // --- CLIs ---
+    // "ghcr.io/devcontainers/features/azure-cli:1": {}
+
+    // --- Data ---
+    // "ghcr.io/eitsupi/devcontainer-features/duckdb-cli:1": {}
+  },
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--cap-add=NET_RAW"
+  ],
+  "postCreateCommand": "./scripts/setup-devcontainer.sh",
+  "postStartCommand": "sudo .devcontainer/init-firewall.sh"
+}
