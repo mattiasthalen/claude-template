@@ -9,7 +9,10 @@
 - ALWAYS save decisions as YYYY-MM-DD-feature-slug-decision.md in /docs/architecture/decisions/ when choosing between alternatives, including what was chosen, what was rejected, and why.
 - ALWAYS capture decisions before implementing the chosen approach — if you picked one option over another, write the decision file first.
 - ALWAYS prefer functional programming with small, pure functions.
-- ALWAYS write a failing test first, implement until it passes, then commit.
+- ALWAYS follow the TDD cycle: write a failing test, verify it fails, implement minimal code to pass, verify it passes, then commit.
+- ALWAYS structure each plan task as: test → verify-fail → implement → verify-pass → commit. Each step is one action.
+- ALWAYS pair each implementation task with its own test — write and verify the test before writing any implementation code for that task.
+- ALWAYS include exact test commands with expected output (pass or fail) in every verify step.
 - ALWAYS use conventional commits with scope.
 - ALWAYS push after every commit.
 - ALWAYS use merge commits when merging PRs or branches — preserve full commit history.
