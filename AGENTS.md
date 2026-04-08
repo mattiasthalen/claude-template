@@ -1,5 +1,6 @@
 # Agents
 
+- ALWAYS frame rules as positive guidance — tell what to do, not what to avoid.
 - ALWAYS work in git worktrees on feature branches.
 - ALWAYS open a draft PR when starting work.
 - ALWAYS save plans as YYYY-MM-DD-feature-slug-plan.md in /docs/plans/.

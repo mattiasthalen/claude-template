@@ -28,6 +28,18 @@ Configure plugins via devcontainer lifecycle events rather than a shell script.
 - Harder to run manually outside the container.
 - Less visible — buried in JSON config rather than explicit scripts.
 
-## Decision
+### D. Use `npx skills` for all plugins (rejected)
 
-**Option B** — separate script with justfile target. Follows the existing setup-git pattern and keeps concerns cleanly separated.
+The `npx skills` CLI supports 40+ agents including Claude Code and Codex. Could use it as a single install mechanism for everything.
+
+- Claude Code has its own native plugin system (`claude plugin marketplace add` / `claude plugin install`) which is the recommended path.
+- `npx skills` is the recommended path for Codex.
+- Using each tool's native mechanism is more robust and forward-compatible.
+
+## Decisions
+
+**Setup approach**: Option B — separate script with justfile target. Follows the existing setup-git pattern and keeps concerns cleanly separated.
+
+**Plugin install mechanism**: Use each tool's native system — Claude Code's plugin CLI for Claude plugins, `npx skills` for Codex plugins. Most robust and follows each tool's recommended path.
+
+**Codex CLI fallback**: Install via `npm install -g @openai/codex` when the devcontainer feature doesn't provide it. The devcontainer feature was unreliable, and Node.js is already available.
