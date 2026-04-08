@@ -18,6 +18,6 @@ fi
 
 # --- Codex Skills ---
 echo "Installing Codex skills..."
-npx -y skills add JuliusBrussee/caveman -a codex 2>/dev/null || true
+npx -y skills add JuliusBrussee/caveman -y -a codex 2>/dev/null || true
 
 echo "Plugin setup complete."
