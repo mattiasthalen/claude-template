@@ -76,8 +76,31 @@ fi
 
 indicators="${dirty}${untracked}"
 
-# Assemble branch info: branch [*!]
+# Ahead/behind remote — use ${VAR+isset} to distinguish empty (no ahead/behind) from unset (run git)
+ahead=""
+behind=""
+if [ -z "${GIT_NO_UPSTREAM:-}" ]; then
+  if [ -n "${GIT_AHEAD+isset}" ] || [ -n "${GIT_BEHIND+isset}" ]; then
+    ahead="${GIT_AHEAD:-}"
+    behind="${GIT_BEHIND:-}"
+  else
+    upstream_counts=$(git rev-list --left-right --count @{u}...HEAD 2>/dev/null || echo "")
+    if [ -n "$upstream_counts" ]; then
+      behind=$(echo "$upstream_counts" | cut -f1)
+      ahead=$(echo "$upstream_counts" | cut -f2)
+    fi
+  fi
+fi
+
+ahead_str=""
+behind_str=""
+[ -n "$ahead" ] && [ "$ahead" != "0" ] && ahead_str="↑${ahead}"
+[ -n "$behind" ] && [ "$behind" != "0" ] && behind_str="↓${behind}"
+
+# Assemble branch info: branch [*!] [↑N] [↓N]
 branch_info="${branch}"
 [ -n "$indicators" ] && branch_info="${branch_info} ${indicators}"
+[ -n "$ahead_str" ] && branch_info="${branch_info} ${ahead_str}"
+[ -n "$behind_str" ] && branch_info="${branch_info} ${behind_str}"
 
 printf '%b\n' "${path_display} (${branch_info}) | ${model_name} | ${ctx_display} | ${cost_fmt}"
