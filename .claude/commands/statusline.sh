@@ -2,6 +2,18 @@
 set -euo pipefail
 input=$(cat)
 
+# Path display — detect worktree vs normal repo
+toplevel="${GIT_TOPLEVEL:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
+project_dir="${CLAUDE_PROJECT_DIR:-$toplevel}"
+project_base=$(basename "$project_dir")
+current_base=$(basename "$toplevel")
+
+if [ "$toplevel" = "$project_dir" ]; then
+  path_display="$project_base"
+else
+  path_display="$project_base > $current_base"
+fi
+
 model_id=$(echo "$input" | jq -r '.model.id')
 
 # Derive display name from model ID
@@ -36,4 +48,6 @@ else
   ctx_display="${ctx_text}"
 fi
 
-printf '%b\n' "${model_name} | ${ctx_display} | ${cost_fmt}"
+branch_info=$(git branch --show-current 2>/dev/null || echo "unknown")
+
+printf '%b\n' "${path_display} (${branch_info}) | ${model_name} | ${ctx_display} | ${cost_fmt}"
