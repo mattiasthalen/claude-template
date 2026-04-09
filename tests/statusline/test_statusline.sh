@@ -29,6 +29,21 @@ assert_contains "normal repo shows basename" "primer (" "$result"
 result=$(CLAUDE_PROJECT_DIR="/workspaces/primer" GIT_TOPLEVEL="/workspaces/primer/.claude/worktrees/feat+my-feature" bash "$SCRIPT" <<< '{"model":{"id":"claude-opus-4-6"},"context_window":{"used_percentage":0,"context_window_size":200000},"cost":{"total_cost_usd":0}}')
 assert_contains "worktree shows project > worktree" "primer > feat+my-feature (" "$result"
 
+# --- Branch display ---
+echo "Branch display:"
+
+# Branch name from GIT_BRANCH override
+result=$(CLAUDE_PROJECT_DIR="/workspaces/primer" GIT_TOPLEVEL="/workspaces/primer" GIT_BRANCH="main" bash "$SCRIPT" <<< '{"model":{"id":"claude-opus-4-6"},"context_window":{"used_percentage":0,"context_window_size":200000},"cost":{"total_cost_usd":0}}')
+assert_contains "shows branch name" "(main)" "$result"
+
+# Feature branch
+result=$(CLAUDE_PROJECT_DIR="/workspaces/primer" GIT_TOPLEVEL="/workspaces/primer" GIT_BRANCH="feat/my-feature" bash "$SCRIPT" <<< '{"model":{"id":"claude-opus-4-6"},"context_window":{"used_percentage":0,"context_window_size":200000},"cost":{"total_cost_usd":0}}')
+assert_contains "shows feature branch" "(feat/my-feature)" "$result"
+
+# Detached HEAD — GIT_BRANCH empty, GIT_SHA provided
+result=$(CLAUDE_PROJECT_DIR="/workspaces/primer" GIT_TOPLEVEL="/workspaces/primer" GIT_BRANCH="" GIT_SHA="abc1234" bash "$SCRIPT" <<< '{"model":{"id":"claude-opus-4-6"},"context_window":{"used_percentage":0,"context_window_size":200000},"cost":{"total_cost_usd":0}}')
+assert_contains "detached HEAD shows short SHA" "(abc1234)" "$result"
+
 # --- Model name derivation ---
 echo "Model name derivation:"
 

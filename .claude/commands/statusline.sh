@@ -48,6 +48,15 @@ else
   ctx_display="${ctx_text}"
 fi
 
-branch_info=$(git branch --show-current 2>/dev/null || echo "unknown")
+# Git branch — current branch or short SHA for detached HEAD
+# Use GIT_BRANCH if set in env (even empty), otherwise ask git
+if [ -n "${GIT_BRANCH+isset}" ]; then
+  branch="$GIT_BRANCH"
+else
+  branch="$(git branch --show-current 2>/dev/null)"
+fi
+if [ -z "$branch" ]; then
+  branch="${GIT_SHA:-$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")}"
+fi
 
-printf '%b\n' "${path_display} (${branch_info}) | ${model_name} | ${ctx_display} | ${cost_fmt}"
+printf '%b\n' "${path_display} (${branch}) | ${model_name} | ${ctx_display} | ${cost_fmt}"
